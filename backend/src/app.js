@@ -1,14 +1,13 @@
-import express from "express"
-import cors from "cors"
-import userRoutes from "./routes/users.routes.js"
+import express from "express";
+import userRoutes from "./routes/users.routes.js";
+import cors from "cors";
 
 export const app = express();
+
 app.use(express.json());
-app.use("/api/v1",userRoutes);
 app.use(cors({
-    origin: "*",
-    credentials: true
+  origin: "http://localhost:5173",
+  credentials: true,
 }));
-app.use(express.urlencoded({extended: true, limit: "16kb"}));
 
-
+app.use("/api/v1", userRoutes);  

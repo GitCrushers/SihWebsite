@@ -1,9 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import useStore from '../store/store'
+
 
 const Home = () => {
   const navigate = useNavigate()
+  const { token, user, fetchUser } = useStore();
+  useEffect(() => {
+    if (token && !user) {
+      fetchUser();
+    }
+  }, [token, user, fetchUser]);
 
   return (
     <>
@@ -12,14 +20,14 @@ const Home = () => {
         className="relative bg-gradient-to-b from-black via-black to-[#548F77] md:min-h-screen sm:min-h-screen h-auto flex flex-col items-center gap-6 pt-24 sm:pt-32 md:pt-40 px-4 overflow-hidden"
       >
        
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="font-bold text-2xl sm:text-3xl md:text-5xl text-center"
-        >
-          Hola! User
-        </motion.div>
+       <motion.div
+  initial={{ opacity: 0, y: -30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8 }}
+  className="font-bold text-3xl sm:text-3xl md:text-5xl text-center"
+>
+  { `Hola! ${user ? user.fullname : "Guest"}` }
+</motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -41,16 +49,16 @@ const Home = () => {
 
        
         <motion.button
-          onClick={() => navigate('/login')}
-          whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9 }}
-          className="bg-gradient-to-tr z-60 text-white from-black via-black to-[#548F77] hover:from-[#548F77] hover:to-black cursor-pointer border-2 px-4 sm:px-6 py-2 rounded-xl sm:rounded-2xl border-[#E4FF9A]/60 text-sm sm:text-lg md:text-xl transition-all duration-300"
-        >
-          Get Started
-        </motion.button>
+  onClick={() => navigate(token ? '/dashboard' : '/login')}
+  whileHover={{ scale: 1.1, textShadow: "0px 0px 8px #E4FF9A" }}
+  whileTap={{ scale: 0.95 }}
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, delay: 0.9 }}
+  className="bg-gradient-to-tr z-60 text-white from-black via-black to-[#548F77] hover:from-[#548F77] hover:to-black cursor-pointer border-2 px-6 sm:px-6 py-2 rounded-xl sm:rounded-2xl border-[#E4FF9A]/60 text-sm sm:text-lg md:text-xl transition-all duration-300"
+>
+  {token ? "Go to Dashboard" : "Get Started"}
+</motion.button>
 
     
         <motion.div
@@ -98,7 +106,7 @@ const Home = () => {
           className="flex justify-center w-full md:w-auto"
         >
           <img
-            src="/globe.png"
+            src="/Globe.png"
             className="w-[220px] sm:w-[350px] md:w-[450px] lg:w-[500px] h-auto"
             alt="Globe"
           />
