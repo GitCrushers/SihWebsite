@@ -45,7 +45,7 @@ const Navbar = () => {
     ))}
 
   
-    <img src="/logo.png" alt="Logo" className="h-10 w-auto mx-4 pr-8" />
+    <img src="/logo.png" alt="Logo" className="h-10 w-auto mx-4 pr-10" />
 
     {navItems.slice(Math.ceil(navItems.length / 2)).map((item, index) => (
       <button
