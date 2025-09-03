@@ -68,7 +68,7 @@ const useStore = create((set) => ({
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      set({ user: res.data, loading: false });
+      set({ user: res.data.user, loading: false });
       return res.data;
     } catch (err) {
       set({
