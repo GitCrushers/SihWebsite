@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import axios from "axios";
 
+const Backend_uri= import.meta.env.VITE_BACKEND_URL;
+
 const useStore = create((set) => ({
   user: null,
   token: localStorage.getItem("token") || null,
@@ -11,7 +13,7 @@ const useStore = create((set) => ({
   register: async (userData) => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/signup", userData);
+      const res = await axios.post(`${Backend_uri}/api/v1/signup`, userData);
       set({ loading: false });
       return res.data;
     } catch (err) {
@@ -26,7 +28,7 @@ const useStore = create((set) => ({
   login: async (credentials) => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/signin", credentials);
+      const res = await axios.post(`${Backend_uri}/api/v1/signin`, credentials);
 
       if (res.data.token) {
         localStorage.setItem("token", res.data.token);
@@ -55,7 +57,7 @@ const useStore = create((set) => ({
 
     set({ loading: true, error: null });
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/user", {
+      const res = await axios.get(`${Backend_uri}/api/v1/user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
