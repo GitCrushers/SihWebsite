@@ -7,6 +7,8 @@ import Home from './pages/Home.jsx'
 import About from './pages/About.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Team from './pages/Team.jsx'
+import Login from './pages/Login.jsx'
+import Register from './pages/Register.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -17,6 +19,8 @@ createRoot(document.getElementById('root')).render(
           <Route element={<About/>} path='about'/>
           <Route element={<Dashboard/>} path='dashboard'/>
           <Route element={<Team/>} path='team'/>
+          <Route element={<Login/>} path='login'/>
+          <Route element={<Register/>} path='register'/>
         </Route>
       </Routes>
     </BrowserRouter>
