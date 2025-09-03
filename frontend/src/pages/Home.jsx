@@ -20,7 +20,7 @@ const Home = () => {
     <>
       <section
         id="content"
-        className="relative bg-gradient-to-b from-black via-black to-[#548F77] md:min-h-screen sm:min-h-screen h-auto flex flex-col items-center gap-6 pt-24 sm:pt-32 md:pt-40 px-4 overflow-hidden"
+        className="relative bg-gradient-to-b from-black via-black to-[#548F77] md:min-h-screen sm:min-h-screen h-auto flex flex-col items-center gap-6 pt-35 sm:pt-32 md:pt-40 px-4 overflow-hidden"
       >
        
        <motion.div
