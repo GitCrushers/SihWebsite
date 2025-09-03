@@ -4,9 +4,11 @@ import cors from "cors";
 
 export const app = express();
 
+const frontend_url = process.env.FRONTEND_URL || 'http://localhost:5173'
+
 app.use(express.json());
 app.use(cors({
-  origin: "https://grid-powers.vercel.app",
+  origin: {frontend_url},
   credentials: true,
 }));
 

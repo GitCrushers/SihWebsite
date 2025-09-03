@@ -49,15 +49,15 @@ const Home = () => {
 
        
         <motion.button
-  onClick={() => navigate(token ? '/dashboard' : '/login')}
+  onClick={() => navigate(user ? '/dashboard' : '/login')}
   whileHover={{ scale: 1.1, textShadow: "0px 0px 8px #E4FF9A" }}
   whileTap={{ scale: 0.95 }}
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 1, delay: 0.9 }}
-  className="bg-gradient-to-tr z-60 text-white from-black via-black to-[#548F77] hover:from-[#548F77] hover:to-black cursor-pointer border-2 px-6 sm:px-6 py-2 rounded-xl sm:rounded-2xl border-[#E4FF9A]/60 text-sm sm:text-lg md:text-xl transition-all duration-300"
+  className="bg-gradient-to-tr z-20 text-white from-black via-black to-[#548F77] hover:from-[#548F77] hover:to-black cursor-pointer border-2 px-6 sm:px-6 py-2 rounded-xl sm:rounded-2xl border-[#E4FF9A]/60 text-sm sm:text-lg md:text-xl transition-all duration-300"
 >
-  {token ? "Go to Dashboard" : "Get Started"}
+  {user ? "Go to Dashboard" : "Get Started"}
 </motion.button>
 
     

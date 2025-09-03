@@ -20,8 +20,7 @@ const Navbar = () => {
     setMobileOpen(false);
   };
 
-  // Links for the rounded navbar (including Home)
-  const navItems = token
+  const navItems = user
     ? [
         { label: "Home", path: "/" },
         { label: "Dashboard", path: "/dashboard" },
@@ -36,7 +35,7 @@ const Navbar = () => {
 
   return (
     <header className="fixed top-6 w-full z-60 px-4 sm:px-6 flex flex-col items-center">
-      {/* Desktop Navbar */}
+     
       <div className="hidden md:flex justify-center items-center space-x-4 sm:space-x-6 md:space-x-10 w-full max-w-2xl">
         <nav className="flex justify-center items-center border border-[#E4FF9A]/60 backdrop-blur-md py-3 px-5 sm:px-6 rounded-full text-white font-medium space-x-4 sm:space-x-6 md:space-x-10 mx-auto">
           {navItems.map((item, index) => (
@@ -61,7 +60,7 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Mobile Navbar */}
+    
       <div className="md:hidden flex justify-between items-center border border-[#E4FF9A]/60 backdrop-blur-md py-3 px-5 sm:px-6 rounded-full text-white font-medium w-full max-w-md">
         <button onClick={() => navigate("/")} className="text-white font-bold">
           Home
@@ -72,9 +71,9 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
+     
       {mobileOpen && (
-        <div className="md:hidden mt-2 bg-black px-4 py-4 space-y-3 rounded-xl mx-auto max-w-md">
+        <div className="md:hidden mt-2 bg-black px-4 py-4 space-y-3 rounded-xl  w-full ">
           {navItems.map((item, index) => (
             <button
               key={index}
