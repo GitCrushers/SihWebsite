@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const Backend_uri= import.meta.env.VITE_BACKEND_URL;
+const Backend_uri = import.meta.env.VITE_BACKEND_URL;
 
 const useStore = create((set) => ({
   user: null,
@@ -21,9 +21,13 @@ const useStore = create((set) => ({
         loading: false,
         error: err.response?.data?.message || err.message,
       });
-      return { success: false, message: err.response?.data?.message || err.message };
+      return {
+        success: false,
+        message: err.response?.data?.message || err.message,
+      };
     }
   },
+
 
   login: async (credentials) => {
     set({ loading: true, error: null });
@@ -34,9 +38,10 @@ const useStore = create((set) => ({
         localStorage.setItem("token", res.data.token);
       }
 
+
       set({
         token: res.data.token,
-        user: { name: res.data.name, email: res.data.email, username: res.data.username },
+        user: res.data.user, 
         loading: false,
       });
 
@@ -46,11 +51,13 @@ const useStore = create((set) => ({
         loading: false,
         error: err.response?.data?.message || err.message,
       });
-      return { success: false, message: err.response?.data?.message || err.message };
+      return {
+        success: false,
+        message: err.response?.data?.message || err.message,
+      };
     }
   },
 
-  
   fetchUser: async () => {
     const token = localStorage.getItem("token");
     if (!token) return null;
@@ -72,7 +79,7 @@ const useStore = create((set) => ({
     }
   },
 
-
+  
   logout: () => {
     localStorage.removeItem("token");
     set({ user: null, token: null });

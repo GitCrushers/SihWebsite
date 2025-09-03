@@ -23,16 +23,29 @@ export async function signUp(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
-      fullname, 
+    const newUser = await User.create({
+      fullname,
       email,
       username,
       password: hashedPassword,
     });
 
+    // 🔹 create token
+    const token = jwt.sign(
+      { id: newUser._id, role: newUser.role, fullname: newUser.fullname },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     return res.status(201).json({
       message: "User registered successfully",
       success: true,
+      token,
+      user: {
+        fullname: newUser.fullname,
+        email: newUser.email,
+        username: newUser.username,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -64,26 +77,26 @@ export async function signIn(req, res) {
     }
 
     const token = jwt.sign(
-      {
-        id: foundUser._id,
-        role: foundUser.role,
-        fullname: foundUser.fullname,
-      },
+      { id: foundUser._id, role: foundUser.role, fullname: foundUser.fullname },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.cookie("csrftoken", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", 
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
     });
 
     return res.json({
-      token,
-      message: "User signed in",
-      fullname: foundUser.fullname,
       success: true,
+      message: "User signed in",
+      token,
+      user: {
+        fullname: foundUser.fullname,
+        email: foundUser.email,
+        username: foundUser.username,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -96,7 +109,7 @@ export async function signIn(req, res) {
 
 export async function user(req, res) {
   try {
-    const signedInUser = req.user; 
+    const signedInUser = req.user;
     const user = await User.findById(signedInUser.id).select("-password");
 
     if (!user) {
@@ -107,9 +120,12 @@ export async function user(req, res) {
     }
 
     return res.json({
-      fullname: user.fullname,
-      email: user.email,
-      username: user.username,
+      success: true,
+      user: {
+        fullname: user.fullname,
+        email: user.email,
+        username: user.username,
+      },
     });
   } catch (error) {
     console.error(error);
