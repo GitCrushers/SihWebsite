@@ -63,7 +63,7 @@ const Navbar = () => {
     
       <div className="md:hidden flex justify-between items-center border border-[#E4FF9A]/60 backdrop-blur-md py-3 px-5 sm:px-6 rounded-full text-white font-medium w-full max-w-md">
         <button onClick={() => navigate("/")} className="text-white font-bold">
-          Home
+          GridPowers
         </button>
 
         <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white focus:outline-none">

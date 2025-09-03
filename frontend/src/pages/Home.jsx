@@ -6,7 +6,10 @@ import useStore from '../store/store'
 
 const Home = () => {
   const navigate = useNavigate()
-  const { token, user, fetchUser } = useStore();
+  const token = useStore((state) => state.token)
+  const user = useStore((state) => state.user)
+  const fetchUser = useStore((state) => state.fetchUser)
+
   useEffect(() => {
     if (token && !user) {
       fetchUser();
