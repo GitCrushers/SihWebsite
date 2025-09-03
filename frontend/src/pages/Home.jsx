@@ -109,7 +109,7 @@ const Home = () => {
           className="flex justify-center w-full md:w-auto"
         >
           <img
-            src="/Globe.png"
+            src="/globe.png"
             className="w-[220px] sm:w-[350px] md:w-[450px] lg:w-[500px] h-auto"
             alt="Globe"
           />
