@@ -36,9 +36,9 @@ const Home = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
-          className="text-center font-bold text-xl sm:text-2xl md:text-4xl lg:text-5xl bg-gradient-to-r from-[#51A8D4] to-[#E4FF9A] bg-clip-text text-transparent leading-tight max-w-full sm:max-w-[700px] md:max-w-[900px]"
+          className="text-center font-bold text-xl sm:text-2xl md:text-4xl lg:text-4xl bg-gradient-to-r from-[#51A8D4] to-[#E4FF9A] bg-clip-text text-transparent leading-tight max-w-full sm:max-w-[700px] md:max-w-[900px]"
         >
-          A powerful online engagement tool that’s intuitive and simple to use.
+        From Energy Generation to Intelligent Visualization: Reliable Microgrids for Rural Areas
         </motion.div>
 
         <motion.div
@@ -70,11 +70,12 @@ const Home = () => {
           transition={{ duration: 1.2, delay: 1.2 }}
           className="relative object-cover sm:hidden h-[350px] z-50"
         >
-          <img
-            src="/imageSolar.png"
-            alt="Solar Icon"
-            className="h-full object-fill"
-          />
+        <img
+  src="/mobile.png"
+  alt="Solar Icon"
+  className="h-full object-fill -rotate-90"
+/>
+
         </motion.div>
 
       
@@ -123,15 +124,10 @@ const Home = () => {
           className="text-[#FFFFFFB2]/70 bg-[#D9D9D933] border border-white shadow-2xl rounded-3xl md:max-w-[600px] max-w-[300px] w-full space-y-4 px-4 sm:px-6 py-5"
         >
           <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-center md:text-left">
-            Explore the World
+            Explore the Project
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-gray-300 text-center md:text-left">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex iste
-            quidem fuga enim. Quas perspiciatis corporis provident molestias
-            harum fugiat amet veniam doloremque tenetur iusto, delectus pariatur
-            voluptate ea illum odio dolorum repellat sint temporibus maxime aut
-            iure aperiam ex laborum. Veritatis, ducimus dolorem quibusdam
-            expedita asperiores quo sint amet!
+          Our advanced microgrid platform integrates solar, wind, and storage to deliver continuous, high-efficiency power in rural environments. With real-time monitoring, intelligent alerting, and advanced visualization, operators gain actionable insights to prevent failures, reduce downtime, and optimize performance. The result is a scalable, resilient infrastructure that ensures renewable energy operates at maximum efficiency where reliability is most critical.
           </p>
 
           <div className="flex justify-center md:justify-center">
