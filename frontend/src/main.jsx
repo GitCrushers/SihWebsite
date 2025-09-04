@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Team from './pages/Team.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
+import Surveliance from './pages/Surveliance.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -17,7 +18,8 @@ createRoot(document.getElementById('root')).render(
         <Route path='/' element={<App/>}>
           <Route index element={<Home/>}/>
           <Route element={<About/>} path='about'/>
-          <Route element={<Dashboard/>} path='dashboard'/>
+          <Route path="dashboard" element={<Dashboard />}/>
+          <Route path='dashboard/surveliance' element={<Surveliance/>}/>
           <Route element={<Team/>} path='team'/>
           <Route element={<Login/>} path='login'/>
           <Route element={<Register/>} path='register'/>
