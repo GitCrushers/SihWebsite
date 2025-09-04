@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useStore from "../store/store.jsx";
 
 const Dashboard = () => {
@@ -64,10 +64,10 @@ const Dashboard = () => {
           </div>
 
           <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
-            <button className="flex flex-col items-center">
+            <Link to="/notifications" className="flex flex-col items-center">
               <span className="text-2xl">💬</span>
               <span className="text-xs mt-1 text-gray-300">Notifications</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>

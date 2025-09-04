@@ -35,10 +35,10 @@ const Surveliance = () => {
         </div>
 
         <div className="bg-gray-800 md:row-span-2 rounded-lg p-4 flex items-center justify-center">
-          <button className="flex flex-col items-center">
+        <Link to="/notifications" className="flex flex-col items-center">
             <span className="text-2xl">💬</span>
             <span className="text-xs mt-1 text-gray-300">Notifications</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

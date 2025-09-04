@@ -10,6 +10,7 @@ import Team from './pages/Team.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import Surveliance from './pages/Surveliance.jsx'
+import Notification from './pages/Notification.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')).render(
           <Route element={<About/>} path='about'/>
           <Route path="dashboard" element={<Dashboard />}/>
           <Route path='dashboard/surveliance' element={<Surveliance/>}/>
+          <Route path='notifications' element={<Notification/>}/>
           <Route element={<Team/>} path='team'/>
           <Route element={<Login/>} path='login'/>
           <Route element={<Register/>} path='register'/>
