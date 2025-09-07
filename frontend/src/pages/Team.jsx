@@ -29,7 +29,11 @@ const Team = () => {
         </h1>
 
         <p className="text-gray-400 text-lg max-w-4xl mx-auto mb-16 leading-relaxed">
-          Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book
+        We are a group of passionate learners and innovators, working together to turn ideas into 
+          reality. Each member brings a unique set of skills, creativity, and dedication that 
+          contribute to our collective success. From brainstorming solutions to executing projects, 
+          our team thrives on collaboration, curiosity, and a shared vision for building impactful 
+          solutions.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
