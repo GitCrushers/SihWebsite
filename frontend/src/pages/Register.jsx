@@ -13,6 +13,7 @@ const Register = () => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const {loading} = useStore();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -99,7 +100,7 @@ const Register = () => {
             type="submit"
             className="w-full py-2 rounded-xl bg-gradient-to-tr from-black via-black to-[#548F77] border-2 border-[#E4FF9A]/60 font-semibold text-lg hover:scale-105 transition-all duration-300"
           >
-            Register
+           {loading? "Registering" : "Register"}
           </button>
         </form>
 

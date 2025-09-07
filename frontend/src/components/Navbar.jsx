@@ -72,7 +72,7 @@ const Navbar = () => {
     
       <div className="md:hidden flex justify-between items-center border border-[#E4FF9A]/60 backdrop-blur-md py-3 px-5 sm:px-6 rounded-full text-white font-medium w-full max-w-md">
         <button onClick={() => navigate("/")} className="text-white flex flex-row font-bold">  
-    <img src="/logo.png" alt="Logo" className="h-10 w-auto" />    <span className="mt-2 text-md">VoltEdge</span>
+    <img src="/logo.png" alt="Logo" className="h-10 w-auto" />    <span className="mt-2 text-md">SunShare</span>
         </button>
 
         <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white focus:outline-none">
