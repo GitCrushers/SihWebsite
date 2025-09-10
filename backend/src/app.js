@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/users.routes.js";
+import telemetryRoutes from "./routes/telemetry.routes.js"
 import cors from "cors";
 
 export const app = express();
@@ -13,3 +14,4 @@ app.use(cors({
 }));
 
 app.use("/api/v1", userRoutes);  
+app.use("/api/v2",telemetryRoutes);
