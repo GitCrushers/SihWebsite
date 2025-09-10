@@ -1,5 +1,5 @@
 // backend/services/fetchTelemetry.js
-import { firestore } from "../firebase.js";
+import { firestore } from "./firebaseAuth.js";
 
 export async function fetchTelemetry() {
   try {
