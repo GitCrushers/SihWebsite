@@ -3,10 +3,12 @@ import { firestore } from "./firebaseAuth.js";
 
 export async function fetchTelemetry() {
   try {
+    // Go into "microgrid" (collection) → "data" (document) → randomId collection
     const dataCollection = firestore
-      .collection("microgrid")
-      .doc("devices")
-      .collection("data");
+    .collection("microgrid")
+    .doc("data")
+    .collection("randomIds"); // or whatever that auto-generated collection is
+  
 
     const snapshot = await dataCollection.get();
     const telemetryArray = [];
