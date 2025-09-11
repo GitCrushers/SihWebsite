@@ -7,6 +7,7 @@ const Login = () => {
   const login = useStore((state) => state.login);
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -14,6 +15,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setError("");
 
     const res = await login({ email: form.email, password: form.password });
@@ -22,6 +24,7 @@ const Login = () => {
     } else {
       setError(res.message);
     }
+    setTimeout(() => setIsLoading(false), 2000);
   };
 
   return (
@@ -52,11 +55,16 @@ const Login = () => {
             className="w-full px-4 py-2 rounded-xl bg-black/40 border border-white/30 focus:outline-none focus:border-[#E4FF9A] focus:ring-1 focus:ring-[#E4FF9A] placeholder-gray-400"
           />
 
-          <button
-            type="submit"
-            className="w-full py-2 rounded-xl bg-gradient-to-tr from-black via-black to-[#548F77] border-2 border-[#E4FF9A]/60 font-semibold text-lg hover:scale-105 transition-all duration-300"
-          >
-            Login
+<button
+        type="submit"
+        disabled={isLoading}
+        className={`w-full py-2 rounded-xl font-semibold text-lg border-2 transition-all duration-300
+          ${isLoading 
+            ? "bg-gradient-to-tr from-gray-700 via-gray-800 to-[#6FAF97] border-[#E4FF9A]/30 cursor-not-allowed opacity-70" 
+            : "bg-gradient-to-tr from-black via-black to-[#548F77] border-[#E4FF9A]/60 hover:scale-105"
+          }`}
+      >
+         {isLoading ? "Logining..." : "Login"}
           </button>
         </form>
 
