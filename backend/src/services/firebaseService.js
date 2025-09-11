@@ -5,10 +5,9 @@ export async function fetchTelemetry() {
   try {
     // Go into "microgrid" (collection) → "data" (document) → randomId collection
     const dataCollection = firestore
-    .collection("microgrid")
-    .doc("data")
-    .collection("randomIds"); // or whatever that auto-generated collection is
-  
+      .collection("microgrid")
+      .doc("data")          // this is a document
+      .collection("telemetry");  // the actual randomId collection name
 
     const snapshot = await dataCollection.get();
     const telemetryArray = [];
@@ -25,5 +24,34 @@ export async function fetchTelemetry() {
   } catch (err) {
     console.error("Error fetching telemetry:", err);
     return [];
+  }
+}
+
+export async function fetchLatestTelemetry() {
+  try {
+    const latestSnapshot = await firestore
+      .collection("microgrid")
+      .doc("data")
+      .collection("telemetry")      // where your randomId docs live
+      .orderBy("timestamp", "desc") // sort by latest
+      .limit(1)                     // only take one
+      .get();
+
+    if (latestSnapshot.empty) {
+      console.log("No telemetry data found.");
+      return null;
+    }
+
+    const latestDoc = latestSnapshot.docs[0];
+    const telemetry = {
+      id: latestDoc.id,
+      ...latestDoc.data(),
+    };
+
+    console.log("Fetched latest telemetry:", telemetry);
+    return telemetry;
+  } catch (err) {
+    console.error("Error fetching latest telemetry:", err);
+    return null;
   }
 }
