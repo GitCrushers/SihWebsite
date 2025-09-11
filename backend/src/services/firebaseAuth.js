@@ -8,12 +8,27 @@ const __dirname = path.dirname(__filename);
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(
-      JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY) // safer for Render
-    ),
-    databaseURL: process.env.FIREBASE_DB_URL, // e.g. https://your-app.firebaseio.com
-  });
+    let serviceAccount;
+
+    try {
+      if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      } else {
+        console.error("❌ FIREBASE_SERVICE_ACCOUNT_KEY is missing in env vars");
+      }
+    } catch (e) {
+      console.error("❌ Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:", e);
+    }
+    
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: serviceAccount
+          ? admin.credential.cert(serviceAccount)
+          : admin.credential.applicationDefault(),
+        databaseURL: process.env.FIREBASE_DB_URL,
+      });
+    }
+    
 }
 
 const db = admin.database();   // Realtime Database reference
