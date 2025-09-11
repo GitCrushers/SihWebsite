@@ -7,7 +7,7 @@ blur = cv2.GaussianBlur(gray, (5, 5), 0)
 thresh = cv2.adaptiveThreshold(
     blur, 255,
     cv2.ADAPTIVE_THRESH_MEAN_C,
-    cv2.THRESH_BINARY,
+    cv2.THRESH_BINARY, 
     25, 15
 )
 total_pixels = img.shape[0] * img.shape[1]
