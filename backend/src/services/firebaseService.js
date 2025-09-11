@@ -6,8 +6,8 @@ export async function fetchTelemetry() {
     // Go into "microgrid" (collection) → "data" (document) → randomId collection
     const dataCollection = firestore
       .collection("microgrid")
-      .doc("data")          // this is a document
-      .collection("telemetry");  // the actual randomId collection name
+      .doc("devices")          // this is a document
+      .collection("data");  // the actual randomId collection name
 
     const snapshot = await dataCollection.get();
     const telemetryArray = [];
