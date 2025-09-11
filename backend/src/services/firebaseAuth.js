@@ -11,8 +11,8 @@ if (!admin.apps.length) {
     let serviceAccount;
 
     try {
-      if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
       } else {
         console.error("❌ FIREBASE_SERVICE_ACCOUNT_KEY is missing in env vars");
       }
