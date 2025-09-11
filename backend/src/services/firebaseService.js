@@ -1,31 +1,28 @@
 // backend/services/fetchTelemetry.js
 import { firestore } from "./firebaseAuth.js";
 
+// backend/services/fetchTelemetryRealtime.js
+import admin from "firebase-admin";
+db = admin.database()
+
 export async function fetchTelemetry() {
   try {
-    // Go into "microgrid" (collection) → "data" (document) → randomId collection
-    const dataCollection = firestore
-      .collection("microgrid")
-      .doc("devices")          // this is a document
-      .collection("data");  // the actual randomId collection name
+    const snapshot = await db.ref("microgrid/data").once("value");
+    const data = snapshot.val();
 
-    const snapshot = await dataCollection.get();
-    const telemetryArray = [];
+    if (!data) return [];
 
-    snapshot.forEach((doc) => {
-      telemetryArray.push({
-        id: doc.id,
-        ...doc.data(),
-      });
-    });
-
-    console.log("Fetched telemetry:", telemetryArray.length);
-    return telemetryArray;
+    // Convert object with random IDs into array
+    return Object.entries(data).map(([id, value]) => ({
+      id,
+      ...value,
+    }));
   } catch (err) {
-    console.error("Error fetching telemetry:", err);
+    console.error("Error fetching telemetry from RTDB:", err);
     return [];
   }
 }
+
 
 export async function fetchLatestTelemetry() {
   try {
