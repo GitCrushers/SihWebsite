@@ -31,8 +31,8 @@ export async function fetchLatestTelemetry() {
   try {
     const latestSnapshot = await firestore
       .collection("microgrid")
-      .doc("data")
-      .collection("telemetry")      // where your randomId docs live
+      .doc("devices")
+      .collection("data")      // where your randomId docs live
       .orderBy("timestamp", "desc") // sort by latest
       .limit(1)                     // only take one
       .get();
