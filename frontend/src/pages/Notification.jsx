@@ -3,44 +3,80 @@ import axios from "axios";
 
 const Notification = () => {
   const [alerts, setAlerts] = useState([]);
-  const [latestSolar, setLatestSolar] = useState(0);
-  const [forecastSolar, setForecastSolar] = useState(0);
+  const [latestStatus, setLatestStatus] = useState({});
+  const [error, setError] = useState(null);
+
+  // Load sent alerts from localStorage
+  const getSentAlerts = () => {
+    const stored = localStorage.getItem("sentAlerts");
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  };
+
+  const saveSentAlerts = (sentSet) => {
+    localStorage.setItem("sentAlerts", JSON.stringify([...sentSet]));
+  };
 
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        // 1️⃣ Today's solar
-        const liveRes = await axios.get(
-          "https://sihwebsite-a2hp.onrender.com/api/v2/latestTelemetry"
-        );
-        const todaySolar =
-          liveRes.data.telemetry?.solar?.power_w || liveRes.data.solar?.power_w || 0;
-        setLatestSolar(todaySolar);
+        const res = await axios.get("https://alert-api-60gy.onrender.com/alerts");
+        const data = res.data.latest_status;
 
-        // 2️⃣ Tomorrow's forecast
-        const forecastRes = await axios.get(
-          "https://fixed-gridly.onrender.com/predict?city=sydney"
-        );
-        const predicted_kWh = forecastRes.data.predicted_energy_kWh || 0;
-        const tomorrowSolar = predicted_kWh * 12000; // multiply as per request
-        setForecastSolar(tomorrowSolar);
+        if (data) {
+          setLatestStatus({
+            device_id: data.device_id,
+            timestamp: data.timestamp,
+          });
+        }
 
-        // 3️⃣ Generate alert if tomorrow < today
-        if (tomorrowSolar < todaySolar) {
-          setAlerts((prev) => [
-            ...prev,
-            `⚠️ Alert! Tomorrow's predicted solar (${tomorrowSolar.toFixed(
-              0
-            )} W) is lower than today's (${todaySolar} W).`,
-          ]);
+        const sentAlerts = getSentAlerts();
+        const newAlerts = [];
+
+        if (data.alerts && data.alerts.length > 0) {
+          for (let alert of data.alerts) {
+            // Only send SMS if not sent before
+            if (!sentAlerts.has(alert)) {
+              try {
+                await axios.post("https://sihwebsite-a2hp.onrender.com/api/v3/send-alert", {
+                  to: "+918837804432",
+                  message: `⚠️ Alert from device ${data.device_id}: ${alert}`,
+                });
+                console.log(`SMS sent for alert: ${alert}`);
+                sentAlerts.add(alert); // Mark as sent
+              } catch (smsErr) {
+                console.error("Failed to send SMS:", smsErr);
+              }
+            }
+            newAlerts.push(alert);
+          }
+
+          saveSentAlerts(sentAlerts);
+          setAlerts(newAlerts);
+        } else {
+          setAlerts(["✅ No alerts found"]);
+          console.log("No alerts detected, skipping SMS");
         }
       } catch (err) {
-        console.error("Error fetching alerts:", err);
+        console.error("Failed to fetch alerts:", err);
+        setAlerts([]);
+        setError("Failed to fetch alerts");
       }
     }
 
     fetchAlerts();
   }, []);
+
+  // Format timestamp to IST
+  const formatToIST = (utcString) =>
+    new Date(utcString).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black via-black to-[#548F77] flex justify-center items-start pt-24 px-4">
@@ -49,23 +85,38 @@ const Notification = () => {
           Notifications / Updates
         </h1>
 
+        {latestStatus.device_id && (
+          <div className="bg-gradient-to-b from-green-800 to-green-600 rounded-2xl border border-white/30 p-4 mb-6 shadow-lg">
+            <p className="text-white font-semibold">
+              Device ID: {latestStatus.device_id}
+            </p>
+            {latestStatus.timestamp && (
+              <p className="text-gray-300 text-sm">
+                Timestamp: {formatToIST(latestStatus.timestamp)}
+              </p>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-800 text-white p-4 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-6">
-          {alerts.length > 0 ? (
+          {alerts.length > 0 &&
             alerts.map((alert, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-b from-red-800 to-red-600 rounded-2xl border border-white/30 p-4 shadow-lg"
+                className={`${
+                  alert.includes("✅") ? "from-green-800 to-green-600" : "from-red-800 to-red-600"
+                } bg-gradient-to-b rounded-2xl border border-white/30 p-4 shadow-lg`}
               >
                 <p className="text-white font-semibold">{alert}</p>
               </div>
-            ))
-          ) : (
-            <div className="bg-gradient-to-b from-[#1e1e1e] to-[#0f2d2b] rounded-2xl border border-white/30 p-4 shadow-lg">
-              <p className="text-gray-300">No alerts yet...</p>
-            </div>
-          )}
+            ))}
 
-          {/* Input for sending manual messages */}
           <div className="bg-gradient-to-b from-[#1e1e1e] to-[#0f2d2b] rounded-2xl border border-white/30 p-4 shadow-lg">
             <input
               type="text"
