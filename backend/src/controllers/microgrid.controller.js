@@ -30,19 +30,23 @@ export const saveMicrogridData = async (req, res) => {
   
 // ✅ Get latest N telemetry entries
 export const getTelemetry = async (req, res) => {
-  try {
-    const { limit } = req.query;
-    const latestDoc = await MicrogridData.findOne().sort({ createdAt: -1 });
-    if (!latestDoc || !latestDoc.telemetry) {
-      return res.status(404).json({ success: false, message: "No telemetry found" });
+    try {
+      // Fetch all docs, project only telemetry field
+      const allDocs = await MicrogridData.find({}, { telemetry: 1, _id: 0 });
+  
+      // Flatten telemetry arrays from all documents
+      const allTelemetry = allDocs.flatMap(doc => doc.telemetry);
+  
+      if (!allTelemetry || allTelemetry.length === 0) {
+        return res.status(404).json({ success: false, message: "No telemetry data found" });
+      }
+  
+      res.json({ success: true, count: allTelemetry.length, data: allTelemetry });
+    } catch (err) {
+      res.status(500).json({ success: false, error: err.message });
     }
-
-    const telemetryData = latestDoc.telemetry.slice(-(limit ? parseInt(limit) : 20));
-    res.json({ success: true, data: telemetryData });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
+  };
+  
 
 // ✅ Get single latest telemetry object
 export const getLatestTelemetry = async (req, res) => {
