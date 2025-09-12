@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const microgridSchema = new mongoose.Schema(
     {
       device_id: { type: String, required: true },
@@ -14,8 +15,8 @@ const microgridSchema = new mongoose.Schema(
       alerts: [
         {
           message: String,
-          language: String,
-          timestamp: { type: Date, default: Date.now },
+
+          sentAt: { type: Date, default: Date.now },
         },
       ],
     },
