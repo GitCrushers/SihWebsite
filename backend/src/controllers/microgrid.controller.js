@@ -1,5 +1,5 @@
 
-import MicrogridData from "../models/MicrogridData.js";
+import MicrogridData from "../models/microgrid.schema.js";
 
 export const saveMicrogridData = async (req, res) => {
   try {
