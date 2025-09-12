@@ -8,10 +8,10 @@ const Team = () => {
   const defaultTeamMembers = [
     { name: "Avi Garg", rollNum: "1024060263", avatar: "/teamImage/a.jpg" },
     { name: "Prashant Singh Negi", rollNum: "1024060107", avatar: "/teamImage/Prashant.jpg" },
-    { name: "Samar Malik", rollNum: "ROLL NUM", avatar: "/teamImage/samar.jpg" },
+    { name: "Samar Malik", rollNum: "1024060016", avatar: "/teamImage/samar.jpg" },
     { name: "Kashish Goyal", rollNum: "1024190032", avatar: "/teamImage/Kashishpic.jpg" },
     { name: "Ojasvin", rollNum: "ROLL NUM", avatar: "/teamImage/Ojasvin.jpg" },
-    { name: "NAME", rollNum: "ROLL NUM", avatar: "" },
+    { name: "Ajitesh Thapliyal", rollNum: "1024190135", avatar: "/teamImage/ajitesh.jpeg" },
   ];
 
   const members = defaultTeamMembers;
