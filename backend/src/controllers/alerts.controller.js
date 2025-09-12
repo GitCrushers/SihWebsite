@@ -3,44 +3,45 @@ import twilio from "twilio";
 import dotenv from "dotenv";
 import MicrogridData from "../models/microgrid.schema.js";
 
-
 dotenv.config();
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
-const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
 const router = express.Router();
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
+const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
 router.post("/send-alert", async (req, res) => {
   try {
     const { to, message, device_id } = req.body;
 
     if (!to || !message || !device_id) {
-      return res.status(400).json({ error: "Missing 'to', 'message', or 'device_id'" });
+      return res
+        .status(400)
+        .json({ error: "Missing 'to', 'message', or 'device_id'" });
     }
 
-    // Check if alert already exists for this device
-    const device = await Device.findOne({ device_id });
-    if (!device) {
-      return res.status(404).json({ error: "Device not found" });
+    // Find the microgrid data for this device
+    let microgrid = await MicrogridData.findOne({ device_id });
+
+    if (!microgrid) {
+      microgrid = new MicrogridData({
+        device_id,
+        alerts: [],
+      });
     }
 
-    const alreadySent = device.alerts.some(a => a.message === message);
-    if (alreadySent) {
-      return res.status(200).json({ success: false, message: "Alert already sent" });
-    }
-
-    // Send SMS
+    // Send SMS via Twilio
     const msg = await client.messages.create({
       body: message,
       from: fromNumber,
       to,
     });
 
-    // Save alert in DB
-    device.alerts.push({ message });
-    await device.save();
+    // Store alert in DB
+    microgrid.alerts.push({ message, sentAt: new Date() });
+    await microgrid.save();
 
     res.json({ success: true, sid: msg.sid });
   } catch (err) {
@@ -48,6 +49,7 @@ router.post("/send-alert", async (req, res) => {
     res.status(500).json({ error: "Failed to send alert" });
   }
 });
+
 
 // Get all alerts for a device
 router.get("/devices/:device_id/alerts", async (req, res) => {
@@ -65,4 +67,5 @@ router.get("/devices/:device_id/alerts", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch alerts" });
   }
 });
+
 export default router;
