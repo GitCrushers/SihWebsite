@@ -24,7 +24,7 @@ const Notification = () => {
 
         // Fetch stored alerts from your backend DB
         const dbRes = await axios.get(
-          `http://localhost:8000/api/v3/devices/${data.device_id}/alerts`
+          `https://sihwebsite-a2hp.onrender.com/api/v3/devices/${data.device_id}/alerts`
         );
         const storedAlerts = dbRes.data.alerts.map((a) => a.message);
 
@@ -35,7 +35,7 @@ const Notification = () => {
             if (!storedAlerts.includes(alert)) {
               // Send SMS via backend
               try {
-                await axios.post("http://localhost:8000/api/v3/send-alert", {
+                await axios.post("https://sihwebsite-a2hp.onrender.com/api/v3/send-alert", {
                   to: "+918837804432",
                   message: `⚠️ Alert from device ${data.device_id}: ${alert}`,
                   device_id: data.device_id, // must match MicrogridData.device_id
@@ -70,7 +70,7 @@ const formatToIST = (utcString) => {
   if (!utcString) return "";
   const utcDate = new Date(utcString); // UTC date
   // IST = UTC + 5:30
-  const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
+  const istOffset = 6.5 * 60 * 60 * 1000; // 5 hours 30 minutes in ms
   const istDate = new Date(utcDate.getTime() + istOffset);
 
   return istDate.toLocaleString("en-IN", {
