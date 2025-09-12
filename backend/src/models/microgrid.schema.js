@@ -1,35 +1,23 @@
 import mongoose from "mongoose";
 
-const TelemetrySchema = new mongoose.Schema(
-  {
-    device_id: { type: String, required: true },
-    timestamp: { type: String, required: true },
+// Single telemetry entry schema
+const TelemetrySchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  device_id: { type: String, required: true },
+  timestamp: { type: Date, required: true },
+  solar_current_a: { type: Number },
+  solar_voltage_v: { type: Number },
+  solar_power_w: { type: Number },
+  battery_soc_percent: { type: Number },
+  battery_voltage_v: { type: Number },
+  load_power_w: { type: Number },
+  firmware_version: { type: String },
+  location: { type: String }
+}, { _id: false }); // optional: disable separate _id for each telemetry
 
-    solar: {
-      current_a: Number,
-      voltage_v: Number,
-      power_w: Number,
-    },
-    battery: {
-      soc_percent: Number,
-      voltage_v: Number,
-    },
-    load: {
-      power_w: Number,
-    },
-    metadata: {
-      firmware_version: String,
-      location: String,
-    },
-  },
-  { _id: false }
-);
-
-const MicrogridDataSchema = new mongoose.Schema(
-  {
-    telemetry: [TelemetrySchema],
-  },
-  { timestamps: true }
-);
+// MicrogridData document schema
+const MicrogridDataSchema = new mongoose.Schema({
+  telemetry: { type: [TelemetrySchema], default: [] }
+}, { timestamps: true });
 
 export default mongoose.model("MicrogridData", MicrogridDataSchema);

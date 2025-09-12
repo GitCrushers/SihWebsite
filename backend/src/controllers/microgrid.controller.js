@@ -1,32 +1,44 @@
 import MicrogridData from "../models/microgrid.schema.js";
 
+
 export const saveMicrogridData = async (req, res) => {
     try {
-      const telemetryObj = req.body; // should be an object
+      const { telemetry } = req.body;
   
-      // Find latest microgrid document (or create if none exists)
+      if (!telemetry || !Array.isArray(telemetry) || telemetry.length === 0) {
+        return res.status(400).json({ error: "Telemetry array is required" });
+      }
+  
+      // Validate each telemetry object has required fields
+      for (const t of telemetry) {
+        if (!t.id || !t.device_id || !t.timestamp) {
+          return res.status(400).json({ 
+            error: "Each telemetry object must have id, device_id, and timestamp" 
+          });
+        }
+      }
+  
+      // Find latest microgrid document (or create new if none)
       let latestDoc = await MicrogridData.findOne().sort({ createdAt: -1 });
   
       if (!latestDoc) {
-        // Create new doc if none exists
-        latestDoc = new MicrogridData({
-          telemetry: [telemetryObj],
-        });
+        latestDoc = new MicrogridData({ telemetry });
       } else {
-        // Push new telemetry entry
-        latestDoc.telemetry.push(telemetryObj);
+        latestDoc.telemetry.push(...telemetry); // Append all telemetry objects
       }
   
       await latestDoc.save();
   
       res.status(201).json({
         message: "Telemetry saved successfully",
-        data: telemetryObj,
+        data: telemetry,
       });
+  
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
+  
   
 // ✅ Get latest N telemetry entries
 export const getTelemetry = async (req, res) => {
