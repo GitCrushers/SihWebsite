@@ -1,13 +1,7 @@
 // backend/routes/telemetry.js
 import express from "express";
 import { fetchLatestTelemetry, fetchTelemetry } from "../services/firebaseService.js";
-import { saveMicrogridData } from "../controllers/microgridController.js";
-
-
-
-
-
-
+import { saveMicrogridData } from "../controllers/microgrid.controller.js";
 
 
 const router = express.Router();
