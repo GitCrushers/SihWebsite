@@ -1,4 +1,4 @@
-import Telemetry from "../models/telemetry.schema.js";
+import Telemetry from "../models/microgrid.schema.js";
 
 // Save a single telemetry reading
 export const saveTelemetry = async (req, res) => {
