@@ -32,20 +32,18 @@ const Notification = () => {
 
         if (data.alerts && data.alerts.length > 0) {
           for (let alert of data.alerts) {
-            if (!storedAlerts.includes(alert)) {
-              // Send SMS via backend
-              try {
-                await axios.post("https://sihwebsite-a2hp.onrender.com/api/v3/send-alert", {
-                  to: "+918837804432",
-                  message: `⚠️ Alert from device ${data.device_id}: ${alert}`,
-                  device_id: data.device_id, // must match MicrogridData.device_id
-                });
-                
-                console.log(`SMS sent for alert: ${alert}`);
-              } catch (smsErr) {
-                console.error("Failed to send SMS:", smsErr);
-              }
-            }
+           // Always send alert on refresh / new data
+try {
+  await axios.post("https://sihwebsite-a2hp.onrender.com/api/v3/send-alert", {
+    to: "+918837804432",
+    message: `⚠️ Alert from device ${data.device_id}: ${alert}`,
+    device_id: data.device_id,
+  });
+  console.log(`SMS sent for alert: ${alert}`);
+} catch (smsErr) {
+  console.error("Failed to send SMS:", smsErr);
+}
+
             newAlerts.push(alert);
           }
         } else {
