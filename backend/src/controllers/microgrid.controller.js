@@ -1,61 +1,61 @@
-import Telemetry from "../models/microgrid.schema.js";
+import MicrogridData from "../models/microgrid.schema.js";
 
-// Save a single telemetry reading
-export const saveTelemetry = async (req, res) => {
+export const saveMicrogridData = async (req, res) => {
   try {
-    const telemetry = req.body;
+    const { telemetry } = req.body;
 
-    // Validate required fields
-    if (!telemetry.device_id || !telemetry.timestamp) {
-      return res.status(400).json({
-        error: "Telemetry object must include device_id and timestamp",
-      });
+    if (!telemetry || !Array.isArray(telemetry) || telemetry.length === 0) {
+      return res.status(400).json({ error: "Telemetry array is required" });
     }
 
-    const newTelemetry = new Telemetry(telemetry);
-    await newTelemetry.save();
+    // Validate each telemetry object has device_id
+    for (const t of telemetry) {
+      if (!t.device_id) {
+        return res.status(400).json({ 
+          error: "Each telemetry object must have device_id" 
+        });
+      }
+    }
+
+    // Save each telemetry as a new document
+    const savedTelemetry = [];
+    for (const t of telemetry) {
+      const doc = new MicrogridData(t); // createdAt auto-generated
+      await doc.save();
+      savedTelemetry.push(doc);
+    }
 
     res.status(201).json({
       message: "Telemetry saved successfully",
-      data: newTelemetry,
+      data: savedTelemetry,
     });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get all telemetry readings (optionally with a limit)
+// Fetch latest N telemetry entries
 export const getTelemetry = async (req, res) => {
   try {
-    const { limit } = req.query;
-    const telemetryData = await Telemetry.find()
-      .sort({ createdAt: -1 })
-      .limit(limit ? parseInt(limit) : 100); // default limit 100
-
-    if (!telemetryData || telemetryData.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No telemetry data found" });
+    const allTelemetry = await MicrogridData.find().sort({ createdAt: -1 }).limit(50);
+    if (!allTelemetry.length) {
+      return res.status(404).json({ success: false, message: "No telemetry data found" });
     }
-
-    res.json({ success: true, count: telemetryData.length, data: telemetryData });
+    res.json({ success: true, count: allTelemetry.length, data: allTelemetry });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// Get the latest telemetry reading
+// Get single latest telemetry object
 export const getLatestTelemetry = async (req, res) => {
   try {
-    const latestTelemetry = await Telemetry.findOne().sort({ createdAt: -1 });
-
-    if (!latestTelemetry) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No telemetry data found" });
+    const latest = await MicrogridData.findOne().sort({ createdAt: -1 });
+    if (!latest) {
+      return res.status(404).json({ success: false, message: "No data found" });
     }
-
-    res.json({ success: true, data: latestTelemetry });
+    res.json({ success: true, data: latest });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

@@ -1,19 +1,28 @@
 import mongoose from "mongoose";
 
-const TelemetrySchema = new mongoose.Schema(
+const MicrogridSchema = new mongoose.Schema(
   {
     device_id: { type: String, required: true },
-    timestamp: { type: Date, required: true },
-    solar_current_a: Number,
-    solar_voltage_v: Number,
-    solar_power_w: Number,
-    battery_soc_percent: Number,
-    battery_voltage_v: Number,
-    load_power_w: Number,
-    firmware_version: String,
-    location: String,
+
+    // Solar measurements
+    solar_current_a: { type: Number, default: 0 },
+    solar_voltage_v: { type: Number, default: 0 },
+    solar_power_w: { type: Number, default: 0 },
+
+    // Battery measurements
+    battery_soc_percent: { type: Number, default: 0 },
+    battery_voltage_v: { type: Number, default: 0 },
+
+    // Load measurements
+    load_power_w: { type: Number, default: 0 },
+
+    // Metadata
+    firmware_version: { type: String, default: "v1.0.0" },
+    location: { type: String, default: "" },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Adds createdAt and updatedAt automatically
+  }
 );
 
-export default mongoose.model("Telemetry", TelemetrySchema);
+export default mongoose.model("MicrogridData", MicrogridSchema);
