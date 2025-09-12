@@ -15,4 +15,7 @@ router.get("/telemetry", async (req, res) => {
     res.json({ telemetry });
   });
   router.post("/data", saveMicrogridData);
+ 
+router.get("/data", getTelemetry);       
+router.get("/data/latest", getLatestTelemetry); 
 export default router;
