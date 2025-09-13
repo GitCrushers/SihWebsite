@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [telemetry, setTelemetry] = useState([]);
   const [latestTelemetry, setLatestTelemetry] = useState(null);
 
-  // Check auth and fetch user
+  // Auth check
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -36,32 +36,31 @@ const Dashboard = () => {
   useEffect(() => {
     async function fetchTelemetry() {
       try {
-        const res = await axios.get(
-          "https://sihwebsite-a2hp.onrender.com/api/v2/telemetry"
-        );
-        const data = res.data.telemetry || res.data;
-
-        let formatted = (Array.isArray(data) ? data : [data]).map((d) => ({
-          timestamp: d.timestamp,
-          load_power_w: d?.load?.power_w || 0,
-          solar_power_w: d?.solar?.power_w || 0,
+        const res = await axios.get("https://sihwebsite-a2hp.onrender.com/api/v2/data");
+        const data = res.data.data || [];
+        let formatted = data
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) // sort ascending
+        .map((d) => ({
+          timestamp: d.createdAt,  
+          load_power_w: d.load_power_w || 0,
+          solar_power_w: d.solar_power_w || 0,
         }));
-
-        // Reduce points to max 12
-        const maxPoints = 12;
-        if (formatted.length > maxPoints) {
-          const step = Math.floor(formatted.length / maxPoints);
-          formatted = formatted.filter((_, i) => i % step === 0).slice(0, maxPoints);
-        }
-
-        setTelemetry(formatted);
+      
+      // take last 12 points
+      const maxPoints = 12;
+      if (formatted.length > maxPoints) {
+        formatted = formatted.slice(-maxPoints);
+      }
+      
+      setTelemetry(formatted);
+      
       } catch (err) {
         console.error("Error fetching telemetry:", err);
       }
     }
 
     fetchTelemetry();
-    const interval = setInterval(fetchTelemetry, 10000); // 10s refresh
+    const interval = setInterval(fetchTelemetry, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -69,18 +68,20 @@ const Dashboard = () => {
   useEffect(() => {
     async function fetchLatest() {
       try {
-        const res = await axios.get(
-          "https://sihwebsite-a2hp.onrender.com/api/v2/latestTelemetry"
-        );
-        const d = res.data.telemetry || res.data;
+        const res = await axios.get("https://sihwebsite-a2hp.onrender.com/api/v2/data/latest");
+        const d = res.data.data;
 
         setLatestTelemetry({
-          ...d,
-          solar_power_w: d?.solar?.power_w || 0,
-          solar_current_a: d?.solar?.current_a || 0,
-          load_power_w: d?.load?.power_w || 0,
-          battery_soc: d?.battery?.soc_percent || 0,
-          battery_voltage: d?.battery?.voltage_v || 0,
+          device_id: d.device_id,
+          solar_power_w: d.solar_power_w || 0,
+          solar_current_a: d.solar_current_a || 0,
+          solar_voltage_v: d.solar_voltage_v || 0,
+          load_power_w: d.load_power_w || 0,
+          battery_soc: d.battery_soc_percent || 0,
+          battery_voltage: d.battery_voltage_v || 0,
+          firmware_version: d.firmware_version,
+          location: d.location,
+          timestamp: d.createdAt,
         });
       } catch (err) {
         console.error("Error fetching latest telemetry:", err);
@@ -88,9 +89,18 @@ const Dashboard = () => {
     }
 
     fetchLatest();
-    const interval = setInterval(fetchLatest, 5000); // 5s refresh
+    const interval = setInterval(fetchLatest, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  function formatToIST(utcString) {
+    return new Date(utcString).toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-black via-black to-[#548F77] py-24 px-4 flex justify-center items-start">
@@ -117,6 +127,7 @@ const Dashboard = () => {
               <h3 className="font-semibold text-lg mb-2">☀️ Solar</h3>
               <p className="text-sm">Power: {latestTelemetry.solar_power_w} W</p>
               <p className="text-sm">Current: {latestTelemetry.solar_current_a} A</p>
+              <p className="text-sm">Voltage: {latestTelemetry.solar_voltage_v} V</p>
             </motion.div>
 
             {/* Load */}
@@ -162,18 +173,28 @@ const Dashboard = () => {
               <LineChart data={telemetry}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                 <XAxis
-                  dataKey="timestamp"
-                  tick={{ fill: "white", fontSize: 10 }}
-                  tickFormatter={(t) => {
-                    const date = new Date(t);
-                    return `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
-                  }}
-                />
-                <YAxis tick={{ fill: "white" }} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "#1f2937", color: "white" }}
-                  labelFormatter={(t) => new Date(t).toLocaleString()}
-                />
+  dataKey="timestamp"
+  tick={{ fill: "white", fontSize: 10 }}
+  tickFormatter={(t) =>
+    new Date(t).toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+/>
+
+
+<YAxis tick={{ fill: "white" }} />
+<Tooltip
+  contentStyle={{ backgroundColor: "#1f2937", color: "white" }}
+  labelFormatter={(t) =>
+    new Date(t).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    })
+  }
+/>
+
                 <Legend />
                 <Line
                   type="monotone"
@@ -195,45 +216,32 @@ const Dashboard = () => {
             <p className="text-gray-400 text-center">Loading Graph...</p>
           )}
         </motion.div>
-
-        {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <motion.div
-            onClick={() => navigate("/dashboard/surveliance")}
-            className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 text-gray-300 flex items-center justify-between cursor-pointer shadow-md hover:text-white"
-            whileHover={{ scale: 1.02 }}
-          >
-            <span className="font-semibold">Surveillance</span>
-            <span className="text-xl">→</span>
-          </motion.div>
-
-          <Link
-  to="/forecasting"
-  className="bg-gradient-to-br from-gray-800 via-gray-900 to-black hover:from-gray-700 hover:to-gray-800 transition-colors duration-300 rounded-3xl p-6 flex flex-col justify-between shadow-2xl border border-white/20 hover:scale-105 transform transition-transform"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> <motion.div
+  onClick={() => navigate("/dashboard/surveliance")}
+  className="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-3xl p-6 text-white flex flex-col justify-between cursor-pointer shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:scale-105"
+  whileHover={{ scale: 1.05 }}
 >
-  <div>
-    <h3 className="text-3xl font-extrabold text-cyan-400 mb-2">XX | 30°</h3>
-    <p className="text-yellow-400 font-medium text-sm">
-      Weather Forecasting & Energy Prediction
-    </p>
-  </div>
-  <div className="mt-4">
-    {/* Optional: small icon for weather */}
-    <span className="text-4xl">🌤️</span>
-  </div>
-</Link>
+  <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center space-x-3">
+      <span className="text-3xl">🎥</span>
+      <h3 className="text-xl font-bold">Surveillance</h3>
+    </div>
+    <motion.span
+  className="bg-white/20 px-2 py-1 rounded-lg text-xs"
+  animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+  transition={{ duration: 1.5, repeat: Infinity }}
+>
+  Live
+</motion.span>
 
-          <motion.div
-            className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 flex items-center justify-center shadow-md cursor-pointer hover:scale-105 transition"
-            whileHover={{ scale: 1.1 }}
-          >
-            <Link to="/notifications" className="flex flex-col items-center">
-              <span className="text-2xl">💬</span>
-              <span className="text-xs mt-1 text-gray-300">Notifications</span>
-            </Link>
-          </motion.div>
-        </div>
+  </div>
+  <p className="text-sm text-white/80">
+    View real-time camera feeds and monitor your site. Click to open surveillance dashboard.
+  </p>
+</motion.div>
+<Link to="/forecasting" className="bg-gradient-to-br from-gray-800 via-gray-900 to-black hover:from-gray-700 hover:to-gray-800 transition-colors duration-300 rounded-3xl p-6 flex flex-col justify-between shadow-2xl border border-white/20 hover:scale-105 transform transition-transform" > <div> <h3 className="text-3xl font-extrabold text-cyan-400 mb-2">XX | 30°</h3> <p className="text-yellow-400 font-medium text-sm"> Weather Forecasting & Energy Prediction </p> </div> <div className="mt-4"> {/* Optional: small icon for weather */} <span className="text-4xl">🌤️</span> </div> </Link> <motion.div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 flex items-center justify-center shadow-md cursor-pointer hover:scale-105 transition" whileHover={{ scale: 1.1 }} > <Link to="/notifications" className="flex flex-col items-center"> <span className="text-2xl">💬</span> <span className="text-xs mt-1 text-gray-300">Notifications</span> </Link> </motion.div> </div>
       </motion.div>
+     
     </div>
   );
 };
