@@ -13,43 +13,42 @@ const client = twilio(
 const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
 // Send alert and store in MicrogridData
+// Send alert and store in MicrogridData
 router.post("/send-alert", async (req, res) => {
   try {
-    const { to, message, device_id } = req.body;
-    if (!to || !message || !device_id) {
-      return res.status(400).json({ error: "Missing 'to', 'message', or 'device_id'" });
-    }
+    let { to, message, device_id, language } = req.body;
+    if (!to || !message || !device_id || !language)
+      return res.status(400).json({ error: "Missing fields" });
 
-    // Find the microgrid data for this device
+    // message is already translated by frontend, so no need to translate here
+    const translatedText = message;
+
+    // Find device in DB
     let microgrid = await MicrogridData.findOne({ device_id });
-    if (!microgrid) {
-      microgrid = new MicrogridData({ device_id, alerts: [] });
-    }
+    if (!microgrid) microgrid = new MicrogridData({ device_id, alerts: [] });
 
+    // Check recent duplicates (5 min)
     const now = new Date();
-    const FIVE_MINUTES = 5 * 60 * 1000;
-
-    // Check if same alert was sent in last 5 minutes
     const recentDuplicate = microgrid.alerts.find(
-      (a) => a.message === message && a.sentAt && now - new Date(a.sentAt) < FIVE_MINUTES
+      (a) =>
+        a.message === translatedText &&
+        now - new Date(a.sentAt) < 5 * 60 * 1000
     );
 
-    if (recentDuplicate) {
-      return res.status(200).json({ success: false, message: "Alert already sent in last 5 minutes" });
+    if (!recentDuplicate) {
+      const msg = await client.messages.create({
+        body: translatedText,
+        from: fromNumber,
+        to,
+      });
+
+      microgrid.alerts.push({ message: translatedText, sentAt: new Date() });
+      await microgrid.save();
+
+      return res.json({ success: true, sid: msg.sid });
     }
 
-    // Send SMS via Twilio
-    const msg = await client.messages.create({
-      body: message,
-      from: fromNumber,
-      to,
-    });
-
-    // Store alert with timestamp
-    microgrid.alerts.push({ message, sentAt: now });
-    await microgrid.save();
-
-    res.json({ success: true, sid: msg.sid });
+    return res.json({ success: false, message: "Duplicate within 5 min" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to send alert" });
