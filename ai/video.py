@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 def detect_panel_video(video_path, output_path="static/result_video.mp4"):
-    cap = cv2.VideoCapture("video_path.mp4")
+    cap = cv2.VideoCapture(video_path.mp4)
 
     # get video properties
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
