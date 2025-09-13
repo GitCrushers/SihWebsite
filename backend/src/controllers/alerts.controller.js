@@ -16,8 +16,8 @@ const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 // Send alert and store in MicrogridData
 router.post("/send-alert", async (req, res) => {
   try {
-    let { to, message, device_id, language } = req.body;
-    if (!to || !message || !device_id || !language)
+    let { to, message, device_id } = req.body;
+    if (!to || !message || !device_id)
       return res.status(400).json({ error: "Missing fields" });
 
     // message is already translated by frontend, so no need to translate here

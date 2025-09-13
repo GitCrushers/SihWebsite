@@ -138,8 +138,7 @@ if (!isAlreadyStored) {
     await axios.post(`${API_BASE_URL}/send-alert`, {
       to: toPhoneNumber,
       message: translated,   // already translated
-      device_id: data.device_id,
-      language: language,    // still pass for record
+      device_id: data.device_id   // still pass for record
     });
     
     console.log("SMS sent for new microgrid data alert.");
