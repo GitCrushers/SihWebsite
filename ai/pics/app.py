@@ -1,27 +1,17 @@
-from flask import Flask, render_template, request
-import os
-from modi import detect_panel   # <-- import your function
+# app.py
+from flask import Flask, render_template, Response
+from modi import detect_panel_video
 
 app = Flask(__name__)
-UPLOAD_FOLDER = "static"
-app.config[""] = UPLOAD_FOLDER
 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/')
 def index():
-    if request.method == "POST":
-        file = request.files["file"]
-        if file:
-            file_path = os.path.join(app.config["UPLOAD_FOLDER"], "input.jpg")
-            file.save(file_path)
+    return render_template('surveillance.html')  # your page
 
-            status, clean_ratio, result_path = detect_panel(file_path)
-
-            return render_template("index.html",
-                                   result_image=result_path,
-                                   status=status,
-                                   clean_ratio=clean_ratio)
-
-    return render_template("index.html")
+@app.route('/video_feed')
+def video_feed():
+    return Response(detect_panel_video("panel.mp4"),  # your local video
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
     app.run(debug=True)
