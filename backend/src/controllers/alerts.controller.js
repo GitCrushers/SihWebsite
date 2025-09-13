@@ -11,50 +11,49 @@ const client = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-// Send alert and store in MicrogridData
-// Send alert and store in MicrogridData
-router.post("/send-alert", async (req, res) => {
+router.post("/send-alert-batch", async (req, res) => {
   try {
-    let { to, message, device_id } = req.body;
-    if (!to || !message || !device_id)
-      return res.status(400).json({ error: "Missing fields" });
+    const { to, device_id, messages } = req.body;
 
-    // message is already translated by frontend, so no need to translate here
-    const translatedText = message;
+    if (!to || !device_id || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: "Missing required fields or empty messages" });
+    }
 
-    // Find device in DB
+    // Find or create device in DB
     let microgrid = await MicrogridData.findOne({ device_id });
     if (!microgrid) microgrid = new MicrogridData({ device_id, alerts: [] });
 
-    // Check recent duplicates (5 min)
     const now = new Date();
-    const recentDuplicate = microgrid.alerts.find(
-      (a) =>
-        a.message === translatedText &&
-        now - new Date(a.sentAt) < 5 * 60 * 1000
-    );
+    const sentResults = [];
 
-    if (!recentDuplicate) {
-      const msg = await client.messages.create({
-        body: translatedText,
-        from: fromNumber,
-        to,
-      });
+    for (let msgText of messages) {
+      // Check recent duplicate (within 5 minutes)
+      const recentDuplicate = microgrid.alerts.find(
+        (a) => a.message === msgText && now - new Date(a.sentAt) < 5 * 60 * 1000
+      );
 
-      microgrid.alerts.push({ message: translatedText, sentAt: new Date() });
-      await microgrid.save();
-
-      return res.json({ success: true, sid: msg.sid });
+      if (!recentDuplicate) {
+        try {
+          const msg = await client.messages.create({ body: msgText, from: fromNumber, to });
+          microgrid.alerts.push({ message: msgText, sentAt: now });
+          sentResults.push({ message: msgText, status: "sent", sid: msg.sid });
+        } catch (err) {
+          console.error("Failed to send alert:", err);
+          sentResults.push({ message: msgText, status: "failed" });
+        }
+      } else {
+        sentResults.push({ message: msgText, status: "duplicate" });
+      }
     }
 
-    return res.json({ success: false, message: "Duplicate within 5 min" });
+    await microgrid.save();
+    res.json({ success: true, results: sentResults });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to send alert" });
+    console.error("Batch alert sending failed:", err);
+    res.status(500).json({ error: "Failed to send batch alerts" });
   }
 });
-
 
 // Get all alerts for a device
 router.get("/devices/:device_id/alerts", async (req, res) => {
@@ -62,9 +61,7 @@ router.get("/devices/:device_id/alerts", async (req, res) => {
     const { device_id } = req.params;
     const microgrid = await MicrogridData.findOne({ device_id });
 
-    if (!microgrid) {
-      return res.status(404).json({ error: "Device not found" });
-    }
+    if (!microgrid) return res.status(404).json({ error: "Device not found" });
 
     res.json({ alerts: microgrid.alerts });
   } catch (err) {
@@ -72,5 +69,24 @@ router.get("/devices/:device_id/alerts", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch alerts" });
   }
 });
+
+export const cleanupOldAlerts = async () => {
+  try {
+    const twentyMinutesAgo = new Date(Date.now() - 20 * 60 * 1000); // 20 min
+    const devices = await MicrogridData.find({});
+
+    for (let device of devices) {
+      device.alerts = device.alerts.filter(alert => {
+        if (!alert.sentAt) return true; // keep alerts without timestamp
+        return new Date(alert.sentAt) > twentyMinutesAgo;
+      });
+      await device.save();
+    }
+
+    console.log("Old alerts cleaned up successfully.");
+  } catch (err) {
+    console.error("Failed to clean up old alerts:", err);
+  }
+};
 
 export default router;

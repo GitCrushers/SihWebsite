@@ -2,6 +2,10 @@ import { app } from "./app.js";
 import dotenv from "dotenv";
 import { connectDB } from "./db/index.js";
 import { startSync } from "./services/syncService.js";
+import { cleanupOldAlerts } from "./controllers/alerts.controller.js";
+
+// Run cleanup every 20 minutes
+
 
 
 dotenv.config();
@@ -17,3 +21,4 @@ connectDB()
 })
 
 startSync();
+setInterval(cleanupOldAlerts, 20 * 60 * 1000);
